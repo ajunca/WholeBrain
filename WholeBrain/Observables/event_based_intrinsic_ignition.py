@@ -8,9 +8,11 @@
 
 from WholeBrain.Observables.intrinsic_ignition import IntrinsicIgnition
 import numpy as np
+from numba import jit
 
 
 class EventBasedIntrinsicIgnition(IntrinsicIgnition):
+    # # @jit(nopython=True)
     def _compute_integration(self, node_signal, events, n, t_max):
         # Integration
         # -----------
@@ -22,6 +24,6 @@ class EventBasedIntrinsicIgnition(IntrinsicIgnition):
                 for j in range(n):
                     events_matrix[i, j] = events[i, t] * events[j, t]
             cc = events_matrix - np.eye(n)
-            comps, csize = self._get_components(cc)
+            comps, csize = IntrinsicIgnition.get_components(cc)
             integ[t] = max(csize)/n
         return integ

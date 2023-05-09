@@ -14,7 +14,7 @@ import numpy as np
 # For example:
 #   class FooObservableResult(ObservableResult):
 #       def __init__(self):
-#           super().__init__('Foo')
+#           super().__init__(name='Foo')
 #       @property
 #       def value1(self):
 #           return self._data['value1']
@@ -40,11 +40,7 @@ class ObservableResult:
 # as parameters and outputs the result if computable (or None if some problem occurred). Each implementation has to
 # define "_compute_from_fmri" method.
 #
-# NOTE: At the moment every Observable subclass outputs its own result format, so maybe at a future we have to
-# standardize it somehow...
-#
-# MORE NOTES: Maybe it should be called ObservableOperator as it operates on signals and spits the result but is not
-# itself and Observable(?). Also note that the implementation is as this to maximize the portability with the none
+# NOTES: Implementation is as this to maximize the portability with the none
 # class based library.
 class Observable:
     # Main method to compute the Observable from an fMRI BOLD signal.
@@ -69,4 +65,4 @@ class Observable:
     # Virtual function. Performs the observable computation and returns the result.
     # Needs to be implemented on the deriving classes.
     def _compute_from_fmri(self, bold_signal) -> ObservableResult:
-        pass
+        raise NotImplementedError()

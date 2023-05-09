@@ -40,6 +40,7 @@
 
 from WholeBrain.Observables.observable import Observable, ObservableResult
 import numpy as np
+from numba import jit
 
 # ==================================
 # import the matlab engine. I hate this, but...
@@ -50,7 +51,8 @@ eng = matlab.engine.start_matlab()
 
 
 # TODO: Probably we should move this to Utils
-def dmperm(A):
+@jit
+def dmperm(A) -> (np.ndarray, np.ndarray):
     (useless1, p, useless2, r) = eng.dmperm(eng.double(A), nargout=4)  # Apply MATLABs dmperm
     outp = np.asarray(p).flatten()
     outr = np.asarray(r).flatten()
@@ -92,7 +94,9 @@ class IntrinsicIgnition(Observable):
         assert (value >= 0)
         self._ignition_tr_length = value
 
-    def _get_components(self, A):
+    @staticmethod
+    @jit
+    def get_components(A) -> (np.ndarray, np.ndarray):
         if A.shape[0] != A.shape[1]:
             raise Exception('Adjacency matrix is not square')
 
@@ -117,14 +121,15 @@ class IntrinsicIgnition(Observable):
         # initialization
         comps = np.zeros(A.shape[0])
         # first position of each component is set to one
-        comps[r[0:num_comps].astype(int)-1] = np.ones(num_comps)
+        comps[r[0:num_comps].astype(int) - 1] = np.ones(num_comps)
         # cumulative sum produces a label for each component (in a consecutive way)
         comps = np.cumsum(comps)
         # re-order component labels according to adj.
-        comps[p.astype(int)-1] = comps
+        comps[p.astype(int) - 1] = comps
 
         return comps, comp_sizes
 
+    # @jit(nopython=True)
     def _compute_events(self, node_signal, n, t_max):
         events = np.zeros((n, t_max))
         # Let's compute the events. From [DecoEtAl2017]:
@@ -155,36 +160,40 @@ class IntrinsicIgnition(Observable):
             events[seed, :] = (ev1 - ev2) > 0
         return events
 
+    # @jit(nopython=True)
     def _compute_events_max(self, events):
         return events.shape[1]  # int(np.max(np.sum(events, axis=1)))
 
     # Virtual function, phase based and event based has different implementations
     def _compute_integration(self, node_signal, events, n, t_max):
-        pass
+        raise NotImplementedError()
 
+    # @jit(nopython=True)
     def _event_based_trigger(self, events, integ, n, t_max):
         event_counter = np.zeros(n, dtype=np.uint)  # matrix with 1 x node and number of events in each cell
-        integ_stim = np.zeros((n, self._ignition_tr_length-1, self._compute_events_max(events)))  # (nodes x (nTR-1) x events)
+        integ_stim = np.zeros(
+            (n, self._ignition_tr_length - 1, self._compute_events_max(events)))  # (nodes x (nTR-1) x events)
 
         # Save events and integration values for nTRs after the event
         for seed in range(n):
             flag = 0
             for t in range(t_max):
                 # Detect first event (nevents = matrix with (1 x node) and number of events in each cell)
-                if events[seed, t] == 1 and flag == 0: # if there is an event...
-                    flag = 1 # ... initialize the flag, and ...
+                if events[seed, t] == 1 and flag == 0:  # if there is an event...
+                    flag = 1  # ... initialize the flag, and ...
                     # real events for each subject
-                    event_counter[seed] += 1    # ... count it
+                    event_counter[seed] += 1  # ... count it
                 # save integration value for nTRs after the first event (nodes x (nTRs-1) x events)
                 if flag > 0:
                     # integration for each subject
-                    integ_stim[seed, flag-1, int(event_counter[seed])-1] = integ[t]
+                    integ_stim[seed, flag - 1, int(event_counter[seed]) - 1] = integ[t]
                     flag = flag + 1
                 # after nTRs, set flag to 0 and wait for the next event (then, integ saved for (nTRs-1) events)
                 if flag == self._ignition_tr_length:
                     flag = 0
         return event_counter, integ_stim
 
+    # @jit(nopython=True)
     def _mean_and_std_dev_ignition(self, event_counter, integ_stim, n):
         # mean and std of the max ignition in the nTRs for each subject and for each node
         mevokedinteg = np.zeros(n)

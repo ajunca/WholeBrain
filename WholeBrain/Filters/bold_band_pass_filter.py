@@ -20,7 +20,7 @@ from WholeBrain.Filters.signal_filter import SignalFilter
 #   k: k order butterworth filter. Default: 2
 #   remove_strong_artifacts: Clamp artifacts "remove_strong_artifacts" standard deviations apart. Not applied if None.
 #       Default: 3.0
-class BoldBandPassFilter(SignalFilter):
+class BOLDBandPassFilter(SignalFilter):
     def __init__(self, tr=2.0, flp=0.02, fhi=0.1, k=2, remove_strong_artifacts=3.0):
         self._tr = tr
         self._flp = flp

@@ -9,7 +9,7 @@
 from WholeBrain.Observables.intrinsic_ignition import IntrinsicIgnition
 from WholeBrain.Utils import demean
 import numpy as np
-from numba import jit
+# from numba import jit
 from scipy import signal
 
 
@@ -17,7 +17,7 @@ class PhaseBasedIntrinsicIgnition(IntrinsicIgnition):
 
     # TODO: Code repeated in metastability.py.
     @staticmethod
-    @jit(nopython=False)
+    # @jit(nopython=False)
     def compute_phases(node_signal, n, t_max):
         phases = np.zeros((n, t_max))
         for seed in range(n):  # obtain phases for each seed, i.e., each node
@@ -28,7 +28,7 @@ class PhaseBasedIntrinsicIgnition(IntrinsicIgnition):
     # TODO: Maybe better in Utils?
     # @jit(nopython=True)
     @staticmethod
-    @jit(nopython=True)
+    # @jit(nopython=True)
     def adif(a, b):
         if np.abs(a - b) > np.pi:
             c = 2 * np.pi - np.abs(a - b)

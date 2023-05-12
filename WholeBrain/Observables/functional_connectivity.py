@@ -20,7 +20,7 @@ class FunctionalConnectivityResult(ObservableResult):
 
 class FunctionalConnectivity(Observable):
     # Apply the observable operator
-    def _compute_from_fmri(self, bold_signal) -> FunctionalConnectivityResult:
+    def _compute_from_fMRI(self, bold_signal) -> FunctionalConnectivityResult:
         cc = np.corrcoef(bold_signal, rowvar=True)
         # return cc
         result = FunctionalConnectivityResult()

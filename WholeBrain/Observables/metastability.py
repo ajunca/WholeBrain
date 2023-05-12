@@ -45,7 +45,7 @@ class MetastabilityResult(ObservableResult):
         return self._data['metastability']
 
 class Metastability(Observable):
-    def _compute_from_fmri(self, bold_signal) -> MetastabilityResult:
+    def _compute_from_fMRI(self, bold_signal) -> MetastabilityResult:
         (n, t_max) = bold_signal.shape
         npattmax = t_max - 19    # Calculates the size of phfcd vector
 

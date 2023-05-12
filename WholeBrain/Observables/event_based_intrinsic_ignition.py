@@ -8,7 +8,7 @@
 
 from WholeBrain.Observables.intrinsic_ignition import IntrinsicIgnition
 import numpy as np
-from numba import jit
+# from numba import jit
 
 
 class EventBasedIntrinsicIgnition(IntrinsicIgnition):

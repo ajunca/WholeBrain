@@ -44,7 +44,7 @@ class ObservableResult:
 # class based library.
 class Observable:
     # Main method to compute the Observable from an fMRI BOLD signal.
-    def from_fmri(self, bold_signal, bold_filter=None) -> ObservableResult:
+    def from_fMRI(self, bold_signal, bold_filter=None) -> ObservableResult:
         # First check that there are no NaNs in the signal. If NaNs found, rise a warning and return None
         if np.isnan(bold_signal).any():
             warnings.warn(f'############ Warning!!! {self.__class__.__name__}.from_fmri: NAN found ############')
@@ -60,9 +60,9 @@ class Observable:
         if s is None:
             return None
 
-        return self._compute_from_fmri(s)
+        return self._compute_from_fMRI(s)
 
     # Virtual function. Performs the observable computation and returns the result.
     # Needs to be implemented on the deriving classes.
-    def _compute_from_fmri(self, bold_signal) -> ObservableResult:
+    def _compute_from_fMRI(self, bold_signal) -> ObservableResult:
         raise NotImplementedError()

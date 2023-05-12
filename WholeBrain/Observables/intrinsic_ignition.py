@@ -40,7 +40,7 @@
 
 from WholeBrain.Observables.observable import Observable, ObservableResult
 import numpy as np
-from numba import jit
+# from numba import jit
 
 # ==================================
 # import the matlab engine. I hate this, but...
@@ -51,7 +51,7 @@ eng = matlab.engine.start_matlab()
 
 
 # TODO: Probably we should move this to Utils
-@jit
+# @jit
 def dmperm(A) -> (np.ndarray, np.ndarray):
     (useless1, p, useless2, r) = eng.dmperm(eng.double(A), nargout=4)  # Apply MATLABs dmperm
     outp = np.asarray(p).flatten()
@@ -95,7 +95,7 @@ class IntrinsicIgnition(Observable):
         self._ignition_tr_length = value
 
     @staticmethod
-    @jit
+    # @jit
     def get_components(A) -> (np.ndarray, np.ndarray):
         if A.shape[0] != A.shape[1]:
             raise Exception('Adjacency matrix is not square')
@@ -215,7 +215,7 @@ class IntrinsicIgnition(Observable):
     # 'SubjEvents'
     # mean and variability of ignition across nodes for each single subject (an = across nodes)
     # 'mignition_an', 'stdignition_an'
-    def _compute_from_fmri(self, node_signal) -> IntrinsicIgnitionResult:
+    def _compute_from_fMRI(self, node_signal) -> IntrinsicIgnitionResult:
         (n, t_max) = node_signal.shape
         # Both alternatives, event-based and phase-based, require the events for the ignition.
         events = self._compute_events(node_signal, n, t_max)

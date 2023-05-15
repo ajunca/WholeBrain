@@ -38,22 +38,22 @@ class ObservableResult:
 
 # Abstract class for Observables. At the moment it has a main method "from_fmri" that takes the signal and the filter
 # as parameters and outputs the result if computable (or None if some problem occurred). Each implementation has to
-# define "_compute_from_fmri" method.
+# define "_compute_from_fMRI" method.
 #
 # NOTES: Implementation is as this to maximize the portability with the none
 # class based library.
 class Observable:
     # Main method to compute the Observable from an fMRI BOLD signal.
-    def from_fMRI(self, bold_signal, bold_filter=None) -> ObservableResult:
+    def from_fMRI(self, BOLD_signal, BOLD_filter=None) -> ObservableResult:
         # First check that there are no NaNs in the signal. If NaNs found, rise a warning and return None
-        if np.isnan(bold_signal).any():
+        if np.isnan(BOLD_signal).any():
             warnings.warn(f'############ Warning!!! {self.__class__.__name__}.from_fmri: NAN found ############')
             return None
 
         # Compute bold filter if needed, if not leave the signal as it is
-        s = bold_signal
-        if bold_filter is not None:
-            s = bold_filter.apply_filter(bold_signal)
+        s = BOLD_signal
+        if BOLD_filter is not None:
+            s = BOLD_filter.apply_filter(BOLD_signal)
 
         # We still check that s is not None cause some possible future filters may return None even if nor NaNs
         # are present in the signal

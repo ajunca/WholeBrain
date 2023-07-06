@@ -60,8 +60,16 @@ def dmperm(A) -> (np.ndarray, np.ndarray):
 
 
 class IntrinsicIgnitionResult(ObservableResult):
-    def __init__(self):
-        super().__init__(name='IntrinsicIgnition')
+    def __init__(self, mevokedinteg, stdevokedinteg, fanofactorevokedinteg, mignition):
+        super().__init__(
+            name='IntrinsicIgnition',
+            data={
+                'mevokedinteg': mevokedinteg,
+                'stdevokedinteg': stdevokedinteg,
+                'fanofactorevokedinteg': fanofactorevokedinteg,
+                'mignition': mignition
+            }
+        )
 
     @property
     def mevokedinteg(self):
@@ -235,9 +243,10 @@ class IntrinsicIgnition(Observable):
         # Mean and std ignition for a subject across nodes (an)
         mignition_an = np.mean(mevokedinteg)
 
-        result = IntrinsicIgnitionResult()
-        result.data['mevokedinteg'] = mevokedinteg_ss
-        result.data['stdevokedinteg'] = stdevokedinteg_ss
-        result.data['fanofactorevokedinteg'] = fanofactorevokedinteg_ss
-        result.data['mignition'] = mignition_an
+        result = IntrinsicIgnitionResult(
+            mevokedinteg=mevokedinteg_ss,
+            stdevokedinteg=stdevokedinteg_ss,
+            fanofactorevokedinteg=fanofactorevokedinteg_ss,
+            mignition=mignition_an
+        )
         return result

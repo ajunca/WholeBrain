@@ -10,8 +10,11 @@ import numpy as np
 
 
 class FunctionalConnectivityResult(ObservableResult):
-    def __init__(self):
-        super().__init__(name='FunctionalConnectivity')
+    def __init__(self, fc):
+        super().__init__(
+            name='FunctionalConnectivity',
+            data={'fc': fc}
+        )
 
     @property
     def fc(self):
@@ -23,6 +26,5 @@ class FunctionalConnectivity(Observable):
     def _compute_from_fMRI(self, bold_signal) -> FunctionalConnectivityResult:
         cc = np.corrcoef(bold_signal, rowvar=True)
         # return cc
-        result = FunctionalConnectivityResult()
-        result.data['fc'] = cc
+        result = FunctionalConnectivityResult(fc=cc)
         return result

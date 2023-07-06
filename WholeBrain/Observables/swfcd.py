@@ -11,8 +11,11 @@ import warnings
 
 
 class swFCDResult(ObservableResult):
-    def __init__(self):
-        super().__init__(name='swFCD')
+    def __init__(self, swFCD):
+        super().__init__(
+            name='swFCD',
+            data={'swFCD': swFCD}
+        )
 
     @property
     def swFCD(self):
@@ -87,6 +90,5 @@ class swFCD(Observable):
                 jj2 = jj2 + 1
             ii2 = ii2 + 1
 
-        result = swFCDResult()
-        result.data['swFCD'] = cotsampling
+        result = swFCDResult(swFCD=cotsampling)
         return result

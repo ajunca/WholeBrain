@@ -19,9 +19,10 @@ import numpy as np
 #       def value1(self):
 #           return self._data['value1']
 class ObservableResult:
-    def __init__(self, name):
+    def __init__(self, name, data=dict()):
+        assert isinstance(data, dict)
         self._name = name
-        self._data = dict()
+        self._data = data
 
     @property
     def name(self):

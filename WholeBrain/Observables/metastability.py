@@ -37,8 +37,14 @@ import numpy as np
 
 
 class MetastabilityResult(ObservableResult):
-    def __init__(self):
-        super().__init__(name='Metastability')
+    def __init__(self, metastability, synchrony):
+        super().__init__(
+            name='Metastability',
+            data={
+                'metastability': metastability,
+                'synchrony': synchrony
+            }
+        )
 
     @property
     def metastability(self):
@@ -47,7 +53,7 @@ class MetastabilityResult(ObservableResult):
 class Metastability(Observable):
     def _compute_from_fMRI(self, bold_signal) -> MetastabilityResult:
         (n, t_max) = bold_signal.shape
-        npattmax = t_max - 19    # Calculates the size of phfcd vector
+        # npattmax = t_max - 19    # Calculates the size of phfcd vector
 
         # Some data structures we are going to need
         phases = np.zeros([n, t_max])
@@ -67,7 +73,8 @@ class Metastability(Observable):
             sync[t - 10] = abs(ku)
 
         # Return the metastability value
-        # return np.std(sync)
-        result = MetastabilityResult()
-        result.data['metastability'] = np.std(sync)
+        result = MetastabilityResult(
+            metastability=np.std(sync),
+            synchrony=np.mean(sync)
+        )
         return result

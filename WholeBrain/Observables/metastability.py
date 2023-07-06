@@ -50,6 +50,10 @@ class MetastabilityResult(ObservableResult):
     def metastability(self):
         return self._data['metastability']
 
+    @property
+    def synchrony(self):
+        return self._data['synchrony']
+
 class Metastability(Observable):
     def _compute_from_fMRI(self, bold_signal) -> MetastabilityResult:
         (n, t_max) = bold_signal.shape

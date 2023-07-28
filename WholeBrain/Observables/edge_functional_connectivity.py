@@ -44,23 +44,26 @@ class EdgeFunctionalConnectivityResult(ObservableResult):
 
 
 class EdgeFunctionalConnectivity(Observable):
+    # CAUTION HERE! Different from Matlab code because matrices are transposed.
     @staticmethod
     def __edge_ts(bold_signal):
         # Number of nodes
-        n = bold_signal.shape[1]
+        n = bold_signal.shape[0]
         # Normalization
-        z = zscore(bold_signal)
+        z = zscore(bold_signal, axis=1)
         # Indexes of the upper triangular matrix
-        index = np.nonzero(np.triu(np.ones((n, n)), 1))
-        u = index[0]
-        v = index[1]
-        # edge time series
-        e_ts = np.multiply(z[:, u], z[:, v])
+        # Notes: The following code does not provide same answer as matlab:
+        #   - (u, v) = np.nonzero(np.triu(np.ones((n, n)), 1))
+        # But the following it does (better for debugging):
+        (v, u) = np.where(np.triu(np.ones((n,n)), k=1).T)
+        # edge time series. Again, transposed from the original matlab code.
+        e_ts = np.multiply(z[u, :], z[v, :])
         return e_ts
 
     @staticmethod
     def __edge_ts_2_edge_corr(e_ts):
-        b = np.matmul(np.transpose(e_ts), e_ts)
+        # b = np.matmul(np.transpose(e_ts), e_ts)
+        b = np.matmul(e_ts, np.transpose(e_ts))
         c = np.sqrt(np.diagonal(b))
         c = np.expand_dims(c, axis=1)
         d = np.matmul(c, np.transpose(c))
@@ -70,7 +73,7 @@ class EdgeFunctionalConnectivity(Observable):
 
     # Apply the observable operator
     def _compute_from_fMRI(self, bold_signal) -> EdgeFunctionalConnectivityResult:
-        e_ts = EdgeFunctionalConnectivity.__edge_ts(bold_signal)
-        eFC = EdgeFunctionalConnectivity.__edge_ts_2_edge_corr(e_ts)
-        result = EdgeFunctionalConnectivityResult(eFC=eFC, eTS=e_ts)
+        eTS = EdgeFunctionalConnectivity.__edge_ts(bold_signal)
+        eFC = EdgeFunctionalConnectivity.__edge_ts_2_edge_corr(eTS)
+        result = EdgeFunctionalConnectivityResult(eFC=eFC, eTS=eTS)
         return result

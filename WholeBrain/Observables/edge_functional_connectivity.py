@@ -44,18 +44,24 @@ class EdgeFunctionalConnectivityResult(ObservableResult):
 
 
 class EdgeFunctionalConnectivity(Observable):
-    # CAUTION HERE! Different from Matlab code because matrices are transposed.
     @staticmethod
     def __edge_ts(bold_signal):
+        # NOTES: Some corrections where made from the original python code, mostly problems
+        # with transposed matrices and u and v indices, so now it gives the same result
+        # as in the matlab code.
+
         # Number of nodes
         n = bold_signal.shape[0]
+
         # Normalization
         z = zscore(bold_signal, axis=1)
+
         # Indexes of the upper triangular matrix
         # Notes: The following code does not provide same answer as matlab:
         #   - (u, v) = np.nonzero(np.triu(np.ones((n, n)), 1))
         # But the following it does (better for debugging):
         (v, u) = np.where(np.triu(np.ones((n,n)), k=1).T)
+
         # edge time series. Again, transposed from the original matlab code.
         e_ts = np.multiply(z[u, :], z[v, :])
         return e_ts

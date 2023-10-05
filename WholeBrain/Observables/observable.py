@@ -48,7 +48,7 @@ class Observable:
     def from_fMRI(self, BOLD_signal, BOLD_filter=None) -> ObservableResult:
         # First check that there are no NaNs in the signal. If NaNs found, rise a warning and return None
         if np.isnan(BOLD_signal).any():
-            warnings.warn(f'############ Warning!!! {self.__class__.__name__}.from_fmri: NAN found ############')
+            warnings.warn(f'############ Warning!!! {self.__class__.__name__}.from_fMRI: NAN found ############')
             return None
 
         # Compute bold filter if needed, if not leave the signal as it is
@@ -63,7 +63,21 @@ class Observable:
 
         return self._compute_from_fMRI(s)
 
-    # Virtual function. Performs the observable computation and returns the result.
-    # Needs to be implemented on the deriving classes.
+    # Main method to compute the Observable from the Structural Connectivity matrix.
+    def from_SC(self, SC):
+        # Perform some check on the SC matrix. Check it is a np matrix and that it is square
+        if not isinstance(SC, np.ndarray) or not (SC.shape[0] == SC.shape[1]):
+            warnings.warn(f'############ Warning!!! {self.__class__.__name__}.from_SC: Invalid SC input ############')
+            return None
+
+        return self._compute_from_SC(SC)
+
+    # Virtual function. Performs the computation using the BOLD signal and returns the result.
+    # Implemented in the deriving class if needed.
     def _compute_from_fMRI(self, bold_signal) -> ObservableResult:
+        raise NotImplementedError()
+
+    # Vritual function. Perform the computation using the Structural Connectivity matrix and return the result.
+    # Implemented in the deriving class if needed.
+    def _compute_from_SC(self, SC) -> ObservableResult:
         raise NotImplementedError()

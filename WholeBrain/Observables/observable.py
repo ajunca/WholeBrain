@@ -63,21 +63,21 @@ class Observable:
 
         return self._compute_from_fMRI(s)
 
-    # Main method to compute the Observable from the Structural Connectivity matrix.
-    def from_SC(self, SC):
+    # Main method to compute the Observable from the adjacency matrix matrix.
+    def from_adjacency_matrix(self, M):
         # Perform some check on the SC matrix. Check it is a np matrix and that it is square
-        if not isinstance(SC, np.ndarray) or not (SC.shape[0] == SC.shape[1]):
-            warnings.warn(f'############ Warning!!! {self.__class__.__name__}.from_SC: Invalid SC input ############')
+        if not isinstance(M, np.ndarray) or not (M.shape[0] == M.shape[1]):
+            warnings.warn(f'############ Warning!!! {self.__class__.__name__}.from_adjacency_matrix: Invalid matrix input ############')
             return None
 
-        return self._compute_from_SC(SC)
+        return self._compute_from_adjacency_matrix(M)
 
     # Virtual function. Performs the computation using the BOLD signal and returns the result.
     # Implemented in the deriving class if needed.
     def _compute_from_fMRI(self, bold_signal) -> ObservableResult:
         raise NotImplementedError()
 
-    # Vritual function. Perform the computation using the Structural Connectivity matrix and return the result.
+    # Virtual function. Perform the computation using an adjacency matrix and return the result.
     # Implemented in the deriving class if needed.
-    def _compute_from_SC(self, SC) -> ObservableResult:
+    def _compute_from_adjacency_matrix(self, M) -> ObservableResult:
         raise NotImplementedError()

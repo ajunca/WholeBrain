@@ -46,17 +46,16 @@ import numpy as np
 # import the matlab engine. I hate this, but...
 # ==================================
 import matlab.engine
-eng = matlab.engine.start_matlab()
 # ==================================
 
 
-# TODO: Probably we should move this to Utils
+# Moved inside the class so we can start one engine for each ignition computation. Used for multiprocessing.
 # @jit
-def dmperm(A) -> (np.ndarray, np.ndarray):
-    (useless1, p, useless2, r) = eng.dmperm(eng.double(A), nargout=4)  # Apply MATLABs dmperm
-    outp = np.asarray(p).flatten()
-    outr = np.asarray(r).flatten()
-    return outp, outr
+# def dmperm(A) -> (np.ndarray, np.ndarray):
+#     (useless1, p, useless2, r) = eng.dmperm(eng.double(A), nargout=4)  # Apply MATLABs dmperm
+#     outp = np.asarray(p).flatten()
+#     outr = np.asarray(r).flatten()
+#     return outp, outr
 
 
 class IntrinsicIgnitionResult(ObservableResult):
@@ -92,6 +91,14 @@ class IntrinsicIgnition(Observable):
     # ignition_tr_length is the parameter nTRs in the non class based code
     def __init__(self, ignition_tr_length=5):
         self._ignition_tr_length = ignition_tr_length
+        self.matlab_eng = matlab.engine.start_matlab()
+
+    # Here we use the matlab engine. Not shared between instances so we can do calculations in a multiprocessing fashion.
+    def dmperm(self, A):
+        (useless1, p, useless2, r) = self.matlab_eng.dmperm(self.matlab_eng.double(A), nargout=4)  # Apply MATLABs dmperm
+        outp = np.asarray(p).flatten()
+        outr = np.asarray(r).flatten()
+        return outp, outr
 
     @property
     def ignition_tr_length(self):
@@ -102,9 +109,8 @@ class IntrinsicIgnition(Observable):
         assert (value >= 0)
         self._ignition_tr_length = value
 
-    @staticmethod
     # @jit
-    def get_components(A) -> (np.ndarray, np.ndarray):
+    def get_components(self, A) -> (np.ndarray, np.ndarray):
         if A.shape[0] != A.shape[1]:
             raise Exception('Adjacency matrix is not square')
 
@@ -119,7 +125,7 @@ class IntrinsicIgnition(Observable):
             A = A.astype(np.int64)
 
         # i = Integration.IntegrationFromFC_Fast(A, nbins=20)
-        p, r = dmperm(A)
+        p, r = self.dmperm(A)
         # p indicates a permutation (along rows and columns)
         # r is a vector indicating the component boundaries
         # List including the number of nodes of each component. ith entry is r(i+1)-r(i)

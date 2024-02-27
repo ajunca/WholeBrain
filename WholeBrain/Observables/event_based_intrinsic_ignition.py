@@ -24,6 +24,6 @@ class EventBasedIntrinsicIgnition(IntrinsicIgnition):
                 for j in range(n):
                     events_matrix[i, j] = events[i, t] * events[j, t]
             cc = events_matrix - np.eye(n)
-            comps, csize = IntrinsicIgnition.get_components(cc)
+            comps, csize = self.get_components(cc)
             integ[t] = max(csize)/n
         return integ

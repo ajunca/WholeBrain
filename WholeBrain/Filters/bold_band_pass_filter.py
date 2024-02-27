@@ -21,12 +21,13 @@ from WholeBrain.Filters.signal_filter import SignalFilter
 #   remove_strong_artifacts: Clamp artifacts "remove_strong_artifacts" standard deviations apart. Not applied if None.
 #       Default: 3.0
 class BOLDBandPassFilter(SignalFilter):
-    def __init__(self, tr=2.0, flp=0.02, fhi=0.1, k=2, remove_strong_artifacts=3.0):
+    def __init__(self, tr=2.0, flp=0.02, fhi=0.1, k=2, remove_strong_artifacts=3.0, domain_filtering=[]):
         self._tr = tr
         self._flp = flp
         self._fhi = fhi
         self._k = k
         self._remove_strong_artifacts = remove_strong_artifacts
+        self._domain_filtering = domain_filtering
 
     @property
     def tr(self):
@@ -91,6 +92,17 @@ class BOLDBandPassFilter(SignalFilter):
                 # TODO: This is needed? For the moment lets comment it out.
                 # if finalDetrend:  # Only for compatibility reasons. By default, don't!
                 #    signal_filt[seed, :] = detrend(signal_filt[seed, :])
+
+                # We need to domain filtering?
+                if len(self._domain_filtering) > 0:
+                    fft_signal = np.fft.fft(signal_filt[seed, :])
+
+                    for rem_freq in self._domain_filtering:
+                        index_to_remove = int(rem_freq * len(signal_filt[seed, :]) / self._tr)
+                        fft_signal[index_to_remove] = 0
+                        fft_signal[-index_to_remove] = 0
+
+                        signal_filt[seed, :] = np.fft.ifft(fft_signal)
 
             else:
                 # Signal is not good, we found nans in it... TODO: What is the best way to treat these errors?
